@@ -1,0 +1,37 @@
+trigger createSponsorOnOpportunityWon on Opportunity (after insert) {
+    
+    List <Sponsorship__c> sponsToInsert = new List <Sponsorship__c> ();
+    // or whatever your custom object name put instead of Sponsorship__c
+    
+    for (Opportunity o : Trigger.new) {
+        
+        
+        // here is where you check if opportunity that is being inserted
+        //meets the criteria
+        if (o.StageName == 'Closed Won'){
+        
+        Sponsorship__c s = new Sponsorship__c (); //instantiate the object to put values for future record
+        
+        // now map opportunity fields to new vehicle object that is being created with this opportunity
+        
+        s.Name = o.Name; // and so on so forth untill you map all the fields. 
+        s.Sponsor_Account__c = o.AccountId;
+        //once done, you need to add this new object to the list that would be later inserted. 
+        //don't worry about the details for now
+        
+        sponsToInsert.add(s);
+        
+        
+        }//end if
+        
+    }//end for o
+    
+    //once loop is done, you need to insert new records in SF
+    // dml operations might cause an error, so you need to catch it with try/catch block.
+    try {
+        insert sponsToInsert; 
+    } catch (system.Dmlexception e) {
+        system.debug (e);
+    }
+    
+}
